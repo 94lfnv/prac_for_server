@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Typography, Button, Form, message, Input, Icon } from "antd";
 import Dropzone from "react-dropzone";
-import Axios from "axios";
+import axios from "axios";
 
 const { TextArea } = Input;
 const { Title } = Typography;
@@ -39,17 +39,32 @@ const VideoUploadPage = () => {
   };
 
   const onDrop = (files) => {
-    let formData = new formData();
+    let formData = new FormData();
     const config = {
       header: { "content-type": "multipart/form-data" },
     };
+
     formData.append("file", files[0]);
 
-    Axios.post("./api/video/uploadfiles", formData, config).then((res) => {
-      if (res.data.success) {
-        // success
+    axios.post("/api/video/uploadfiles", formData, config).then((response) => {
+      if (response.data.success) {
+        console.log(response.data);
+
+        let variable = {
+          url: response.data.url,
+          fileName: response.data.fileName,
+        };
+
+        axios.post("/api/video/thumbnail", variable).then((response) => {
+          if (response.data.success) {
+            console.log(response.data);
+          } else {
+            alert("썸네일 생성에 실패했습니다.");
+          }
+        });
       } else {
-        alert("비디오 업로드를 실패했습니다.");
+        console.log("failed");
+        alert("video upload failed.");
       }
     });
   };
@@ -62,7 +77,7 @@ const VideoUploadPage = () => {
 
       <Form onSubmit>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Dropzone onDrop={onDrop} multiple={false} maxSize={1000000}>
+          <Dropzone onDrop={onDrop} multiple={false} maxSize={10000000000}>
             {({ getRootProps, getInputProps }) => (
               <div
                 style={{

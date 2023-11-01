@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-// const { Video } = require("../models/Video");
+const { Video } = require("../models/Video");
 
 //=================================
 //             Video
@@ -46,45 +46,59 @@ router.post("/uploadfiles", (req, res) => {
 });
 
 router.post("/thumbnail", (req, res) => {
-  // 썸네일 생성 및 비디오 러닝 타임 등 정보 가져오기
-
-  let filePath = "";
+  let thumbsFilePath = "";
   let fileDuration = "";
 
-  // 비디오 정보 가져오기
-  ffmpeg.ffprobe(req.body.url, (err, metadata) => {
+  ffmpeg.ffprobe(req.body.filePath, function (err, metadata) {
     console.dir(metadata);
-    console.log(metadata, "meatadata");
-    // console.log(metadata.format, duration);
-    // fileDuration = metadata.format.duration;
+    console.log(metadata.format.duration);
+
+    fileDuration = metadata.format.duration;
   });
 
-  // 썸네일 생성
-  ffmpeg(req.body.url)
-    .on("filenames", (filenames) => {
+  ffmpeg(req.body.filePath)
+    .on("filenames", function (filenames) {
       console.log("Will generate " + filenames.join(", "));
-      console.log(filenames);
-
-      filePath = "uploads/thumbnails/" + filenames[0];
+      thumbsFilePath = "uploads/thumbnails/" + filenames[0];
     })
-    .on("end", () => {
+    .on("end", function () {
       console.log("Screenshots taken");
-      return res
-        .json({
-          success: true,
-          filePath,
-          fileDuration,
-        })
-        .on("error", (err) => {
-          console.log(err);
-          return res.json({ success: false, err });
-        })
-        .screenshots({
-          count: 3,
-          folder: "uploads/thumbnails",
-          size: "320x240",
-          filename: "thumbnail-%b.png",
-        });
+      console.log(fileDuration, "fileDuration");
+      return res.json({
+        success: true,
+        thumbsFilePath: thumbsFilePath,
+        fileDuration: fileDuration,
+      });
+    })
+    .screenshots({
+      // Will take screens at 20%, 40%, 60% and 80% of the video
+      count: 3,
+      folder: "uploads/thumbnails",
+      size: "320x240",
+      // %b input basename ( filename w/o extension )
+      filename: "thumbnail-%b.png",
+    });
+});
+
+router.post("/upload/video", (req, res) => {
+  // 비디오 정보 저장 - 몽고디비에!
+
+  const video = new Video(req.body);
+
+  video.save((err, doc) => {
+    if (err) return res.json({ success: false, err });
+    res.status(200).json({ success: true });
+  });
+});
+
+router.get("/getVideos", (req, res) => {
+  // 디비에서 비디오 가져오기
+  Video.find()
+    .populate("writer")
+    .exec((err, videos) => {
+      console.log(videos, "videossss");
+      if (err) return res.status(400).send(err);
+      res.status(200).json({ success: true, videos });
     });
 });
 

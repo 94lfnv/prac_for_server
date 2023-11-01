@@ -32,7 +32,7 @@ function LandingPage() {
           return (
             <Col lg={6} md={8} xs={24} key={`${index}_video`}>
               {/* 창 사이즈가 가장 작을 때 칼럼 한 칸이 24 사이즈 크기가 된다는 뜻 창이 md면 칼럼 하나가 8, 영상 세 개가 보인다는 거고 lg면 6, 즉 4개가 보인다는 뜻이다. */}
-              <a href={`/video/post/${video._id}`}>
+              <a href={`/video/${video._id}`}>
                 <div style={{ position: "relative" }}>
                   <img
                     style={{ width: "100%" }}

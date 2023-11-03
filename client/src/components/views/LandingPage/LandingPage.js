@@ -26,8 +26,8 @@ function LandingPage() {
       <hr />
       <Row gutter={[32, 16]}>
         {videoData.map((video, index) => {
-          var minutes = Math.floor(video.duration / 60);
-          var seconds = Math.floor(video.duration - minutes * 60);
+          const minutes = Math.floor(video.duration / 60);
+          const seconds = Math.floor(video.duration - minutes * 60);
 
           return (
             <Col lg={6} md={8} xs={24} key={`${index}_video`}>

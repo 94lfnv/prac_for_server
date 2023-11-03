@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Row, Col, List, Avatar } from "antd";
 import axios from "axios";
+import SideVideo from "./section/SideVideo";
+import Subscribe from "./section/Subscribe";
 
 const VideoDetailPage = (props) => {
   const [videoDetail, setVideoDetail] = useState([]);
@@ -29,7 +31,9 @@ const VideoDetailPage = (props) => {
               src={`http://localhost:5000/${videoDetail.filePath}`}
               controls
             />
-            <List.Item actions>
+            <List.Item
+              actions={[<Subscribe userTo={videoDetail.writer._id} />]}
+            >
               <List.Item.Meta
                 title={videoDetail.writer?.name}
                 description={videoDetail.description}
@@ -41,7 +45,7 @@ const VideoDetailPage = (props) => {
           </div>
         </Col>
         <Col lg={6} xs={24}>
-          Side Videos
+          <SideVideo />
         </Col>
       </Row>
     );
